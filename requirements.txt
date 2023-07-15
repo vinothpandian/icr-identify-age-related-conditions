@@ -1,0 +1,16 @@
+catboost==1.2
+easydict==1.10
+fastai==2.7.12
+imbalanced_learn==0.11.0
+lightgbm==3.3.5
+loguru==0.7.0
+matplotlib==3.7.2
+numpy==1.25.1
+pandas==2.0.3
+plotly==5.15.0
+PyYAML==6.0
+scikit_learn==1.2.2
+scipy==1.11.1
+tabpfn==0.1.9
+wandb==0.15.5
+xgboost==1.7.6
