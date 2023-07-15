@@ -1,7 +1,7 @@
-root: ./input
+root: ./data
 output: ./output
 type: submission
-mode: online
+mode: disabled
 
 train:
   file: train.csv
@@ -21,7 +21,6 @@ classifier:
     n_repeats: 4
   model_kwargs:
     objective: binary:logistic
-    gpu_id: 0
   grid_search:
     colsample_bytree: [0.75]
 
@@ -33,32 +32,32 @@ classifier:
     # Typical final values to be used: 0.01-0.2
     learning_rate: [0.07]
 
-    # The maximum depth of a tree is the same as GBM.
-    # Used to control over-fitting as higher depth will allow the model to learn relations very specific to a particular sample.
-    # It should be tuned using CV.
-    # Typical values: 3-10
-    max_depth: [2, 3, 4]
-
-    # Defines the minimum sum of weights of all observations required in a child.
-    # This refers to the min “sum of weights” of observations.
-    # Used to control over-fitting. Higher values prevent a model from
-    # learning relations that might be highly specific to the particular sample selected for a tree.
-    # Too high values can lead to under-fitting; hence, it should be tuned using CV.
-    min_child_weight: [0.9, 1.0, 1.2]
-    n_estimators: [125, 150, 175, 200]
-
-    # L1 regularization term on weight (analogous to Lasso regression)
-    # It can be used in case of very high dimensionality so that the algorithm runs faster when implemented
-    reg_alpha: [0.85]
-
-    # L2 regularization term on weights (analogous to Ridge regression)
-    # This is used to handle the regularization part of XGBoost.
-    # Though many data scientists don’t use it often, it should be explored to reduce overfitting.
-    reg_lambda: [2.0, 2.25, 2.5]
-
-    # A value greater than 0 should be used in case of high-class imbalance as it helps in faster convergence.
-    scale_pos_weight: [2.5, 2.75, 3.0]
-
-    subsample: [0.6, 0.8]
+#    # The maximum depth of a tree is the same as GBM.
+#    # Used to control over-fitting as higher depth will allow the model to learn relations very specific to a particular sample.
+#    # It should be tuned using CV.
+#    # Typical values: 3-10
+#    max_depth: [2, 3, 4]
+#
+#    # Defines the minimum sum of weights of all observations required in a child.
+#    # This refers to the min “sum of weights” of observations.
+#    # Used to control over-fitting. Higher values prevent a model from
+#    # learning relations that might be highly specific to the particular sample selected for a tree.
+#    # Too high values can lead to under-fitting; hence, it should be tuned using CV.
+#    min_child_weight: [0.9, 1.0, 1.2]
+#    n_estimators: [125, 150, 175, 200]
+#
+#    # L1 regularization term on weight (analogous to Lasso regression)
+#    # It can be used in case of very high dimensionality so that the algorithm runs faster when implemented
+#    reg_alpha: [0.85]
+#
+#    # L2 regularization term on weights (analogous to Ridge regression)
+#    # This is used to handle the regularization part of XGBoost.
+#    # Though many preprocess scientists don’t use it often, it should be explored to reduce overfitting.
+#    reg_lambda: [2.0, 2.25, 2.5]
+#
+#    # A value greater than 0 should be used in case of high-class imbalance as it helps in faster convergence.
+#    scale_pos_weight: [2.5, 2.75, 3.0]
+#
+#    subsample: [0.6, 0.8]
 
 batch_size: 128

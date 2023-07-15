@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 
 import wandb
-from fastai.tabular.all import CohenKappa, F1Score, accuracy, torch
+
 from sklearn import metrics
 
-from main import balanced_log_loss, plot_results
+from metrics.loss import balanced_log_loss
+from visualize.results import plot_results
 
 
 class BaseClassifier(ABC):
@@ -15,9 +16,6 @@ class BaseClassifier(ABC):
         self.output_path = output_path
         self.model = None
         self.data = None
-
-        self.kappa = CohenKappa()
-        self.f1 = F1Score()
 
     @abstractmethod
     def preprocess_data(self):
@@ -36,20 +34,18 @@ class BaseClassifier(ABC):
         pass
 
     def evaluate(self, pred_probs, y_true, prefix="val"):
+        y_pred = pred_probs.argmax(axis=1)
+        y_pred_probs = pred_probs[:, 1]
+
         log_loss_val = metrics.log_loss(y_true, pred_probs)
-        wandb.log({"pr": wandb.plots.precision_recall(y_true, pred_probs, [0, 1])})
-        plot_results(y_true, pred_probs[:, 1], self.output_path / "results.png")
+        loss_val = balanced_log_loss(y_true, pred_probs)
 
+        accuracy_val = metrics.accuracy_score(y_true, y_pred)
+        kappa_val = metrics.cohen_kappa_score(y_true, y_pred)
+        f1_val = metrics.f1_score(y_true, y_pred)
+
+        plot_results(y_true, y_pred_probs, self.output_path / "results.png")
         wandb.log({"results": wandb.Image(str(self.output_path / "results.png"))})
-
-        y_true_tensor = torch.tensor(y_true)
-        pred_probs_tensor = torch.tensor(pred_probs)
-        preds_tensor = pred_probs_tensor.argmax(dim=1).reshape(-1, 1)
-
-        loss_val = balanced_log_loss(pred_probs_tensor, y_true_tensor)
-        accuracy_val = accuracy(preds_tensor, y_true_tensor)
-        kappa_val = self.kappa(preds_tensor, y_true_tensor)
-        f1_val = self.f1(preds_tensor, y_true_tensor)
 
         wandb.log(
             {

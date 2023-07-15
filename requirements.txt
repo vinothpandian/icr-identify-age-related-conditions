@@ -2,7 +2,7 @@ catboost==1.2
 easydict==1.10
 fastai==2.7.12
 imbalanced_learn==0.11.0
-lightgbm==3.3.5
+lightgbm==4.0.0
 loguru==0.7.0
 matplotlib==3.7.2
 numpy==1.25.1
@@ -14,3 +14,4 @@ scipy==1.11.1
 tabpfn==0.1.9
 wandb==0.15.5
 xgboost==1.7.6
+kaleido==0.2.1

@@ -194,5 +194,9 @@ ipython_config.py
 
 # End of https://www.toptal.com/developers/gitignore/api/jupyternotebooks
 
-data/
+preprocess/
 output/
+.idea/
+wandb/
+data/
+/grid_search_results.csv
