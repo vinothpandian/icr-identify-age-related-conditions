@@ -5,7 +5,7 @@ from fastcore.utils import Path
 from loguru import logger
 
 from classifiers import get_classifier_class
-from preprocess.preprocessor import Preprocessor
+from preprocessor.preprocessor import Preprocessor
 
 from utils.wandb import init_wandb
 
