@@ -1,11 +1,9 @@
-from functools import partial
-
+import optuna
 import wandb
 import yaml
 from easydict import EasyDict as edict
 from fastcore.utils import Path
 from loguru import logger
-from skopt import gp_minimize, space
 
 from classifiers import get_classifier_class
 from preprocessor.preprocessor import Preprocessor
@@ -42,47 +40,10 @@ def optimize():
     )
     classifier.preprocess_data()
 
-    param_space = [
-        space.Real(0.01, 0.1, name="learning_rate"),
-        space.Integer(100, 1000, name="n_estimators"),
-        space.Integer(3, 15, name="max_depth"),
-        space.Categorical(["gbtree", "gblinear", "dart"], name="booster"),
-        # space.Categorical(["gradient_based", "uniform"], "sampling_method"),
-        space.Real(1.0, 5.0, name="scale_pos_weight"),
-        space.Real(0.0, 1.0, name="subsample"),
-        space.Real(0.0, 1.0, name="colsample_bytree"),
-        space.Real(0.0, 1.0, name="gamma"),
-        space.Real(0.5, 3.0, name="reg_alpha"),
-        space.Real(2.0, 5.0, name="reg_lambda"),
-    ]
-    param_names = [
-        "learning_rate",
-        "n_estimators",
-        "max_depth",
-        "booster",
-        # "sampling_method",
-        "scale_pos_weight",
-        "subsample",
-        "colsample_bytree",
-        "gamma",
-        "reg_alpha",
-        "reg_lambda",
-    ]
-
-    optimization_function = partial(
-        classifier.optimize,
-        param_names=param_names,
+    study = optuna.create_study(
+        direction="minimize", storage="sqlite:///optuna_xgboost.db"
     )
-
-    result = gp_minimize(
-        optimization_function,
-        dimensions=param_space,
-        n_calls=15,
-        n_random_starts=10,
-        verbose=10,
-    )
-
-    print(dict(zip(param_names, result.x)))
+    study.optimize(classifier.optimize, n_trials=15)
 
 
 if __name__ == "__main__":

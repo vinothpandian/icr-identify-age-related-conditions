@@ -45,29 +45,48 @@ class XGBoost(BaseClassifier):
         )
         return df.overfitting_metric.idxmax()
 
-    def optimize(self, params):
-        model = XGBClassifier(**params, eval_metric=balanced_log_loss)
+    def optimize(self, trial):
+        learning_rate = trial.suggest_float("learning_rate", 0.01, 0.1)
+        n_estimators = trial.suggest_int("n_estimators", 100, 1000)
+        max_depth = trial.suggest_int("max_depth", 3, 15)
+        booster = trial.suggest_categorical("booster", ["gbtree", "gblinear", "dart"])
+        scale_pos_weight = trial.suggest_float("scale_pos_weight", 1.0, 5.0)
+        subsample = trial.suggest_float("subsample", 0.0, 1.0)
+        colsample_bytree = trial.suggest_float("colsample_bytree", 0.0, 1.0)
+        gamma = trial.suggest_float("gamma", 0.0, 1.0)
+        reg_alpha = trial.suggest_float("reg_alpha", 0.5, 3.0)
+        reg_lambda = trial.suggest_float("reg_lambda", 2.0, 5.0)
+
+        model = XGBClassifier(
+            learning_rate=learning_rate,
+            n_estimators=n_estimators,
+            max_depth=max_depth,
+            booster=booster,
+            scale_pos_weight=scale_pos_weight,
+            subsample=subsample,
+            colsample_bytree=colsample_bytree,
+            gamma=gamma,
+            reg_alpha=reg_alpha,
+            reg_lambda=reg_lambda,
+            eval_metric=balanced_log_loss,
+            gpu_id=0,
+        )
 
         kfold = model_selection.RepeatedStratifiedKFold(
             **self.clf_config.kfold_kwargs,
         )
 
-        balanced_log_loss_scores = np.array([])
-
         for idx in kfold.split(self.X, self.y):
-            train_idx, val_idx = idx
-            X_train, X_val = self.X.iloc[train_idx], self.X.iloc[val_idx]
-            y_train, y_val = self.y.iloc[train_idx], self.y.iloc[val_idx]
+            train_idx, _ = idx
+            X_train = self.X.iloc[train_idx]
+            y_train = self.y.iloc[train_idx]
 
             model.fit(X_train, y_train)
-            preds = model.predict_proba(X_val)
-            fold_score = balanced_log_loss(y_val.values.ravel(), preds)
-            balanced_log_loss_scores = np.append(
-                balanced_log_loss_scores,
-                fold_score,
-            )
 
-        return balanced_log_loss_scores.mean()
+        y_test = self.y_test.values.ravel()
+        preds = model.predict_proba(self.X_test)
+
+        return balanced_log_loss(y_test, preds)
 
     def fit(self):
         self.kfold = model_selection.RepeatedStratifiedKFold(
