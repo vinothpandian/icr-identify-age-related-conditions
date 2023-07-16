@@ -25,7 +25,7 @@ def optimize():
         storage="sqlite:///optuna_lightgbm.db",
         load_if_exists=True,
     )
-    study.optimize(classifier.optimize, n_trials=10)
+    study.optimize(classifier.optimize, n_trials=500)
 
 
 if __name__ == "__main__":
