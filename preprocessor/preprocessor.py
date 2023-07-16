@@ -3,7 +3,6 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from fastai.tabular.core import cont_cat_split
-from loguru import logger
 from sklearn import model_selection
 
 from config.config import Config
@@ -62,21 +61,16 @@ class Preprocessor:
         else:
             test_data = preprocessor.transform(self.test_df)
 
-    def resample(self):
+    def resample(self, X, y):
         sampler = get_sampling_strategy(self.config.sampling_strategy)
 
-        if sampler is None or not all([stratify_by in self.dep_vars for stratify_by in self.stratify_by]):
-            logger.info("Cannot resample when stratify_by is not in dep_vars")
-            return
+        if sampler is None:
+            return X, y
 
-        logger.info(f"Resampling data with {self.config.sampling_strategy}")
         sampler_kwargs = self.config.sampling_strategy_kwargs
-        X_res, y_res = sampler(**sampler_kwargs).fit_resample(self.X_pre, self.train_df[self.dep_vars])
-        self.train_df = pd.merge(X_res, y_res, left_index=True, right_index=True)
+        X_res, y_res = sampler(**sampler_kwargs).fit_resample(X, y)
+        return X_res, y_res
 
     def preprocess(self):
         self.load_data()
         self.preliminary_preprocessing()
-        self.resample()
-
-        return self.train_df, self.test_df, self.cont_names, self.cat_names

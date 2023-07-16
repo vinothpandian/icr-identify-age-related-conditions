@@ -12,7 +12,7 @@ dep_vars: ["Class"]
 sampling_strategy: smote
 
 classifier: xgboost
-with_greeks: False
+with_greeks: True
 drop_cols: ["EJ"]
 stratify_by: ["Class"]
 kfold_type: stratified

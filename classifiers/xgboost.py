@@ -52,7 +52,9 @@ class XGBoost(BaseClassifier):
             X_train = self.X.iloc[train_idx]
             y_train = self.y.iloc[train_idx]
 
-            self.model.fit(X_train, y_train)
+            X, y = self.data_preprocessor.resample(X_train, y_train)
+
+            self.model.fit(X, y)
 
         self.train_pred_probs = self.model.predict_proba(self.X)
 
