@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 
-import wandb
 from sklearn import metrics
 
+import wandb
 from metrics.loss import balanced_log_loss
 from visualize.results import plot_results
 
@@ -26,6 +26,10 @@ class BaseClassifier(ABC):
 
     @abstractmethod
     def fit(self):
+        pass
+
+    @abstractmethod
+    def objective(self, trial):
         pass
 
     @abstractmethod
@@ -76,3 +80,7 @@ class BaseClassifier(ABC):
         self.fit()
         self.get_validation_metrics()
         self.get_test_data_metrics()
+
+    def optimize(self, trial):
+        self.preprocess_data()
+        self.objective(trial)

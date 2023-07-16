@@ -1,10 +1,10 @@
 import optuna
-import wandb
 import yaml
 from easydict import EasyDict as edict
 from fastcore.utils import Path
 from loguru import logger
 
+import wandb
 from classifiers import get_classifier_class
 from preprocessor.preprocessor import Preprocessor
 from utils.wandb import init_wandb
@@ -38,7 +38,6 @@ def optimize():
         config,
         output_path,
     )
-    classifier.preprocess_data()
 
     study = optuna.create_study(
         direction="minimize",

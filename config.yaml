@@ -6,12 +6,13 @@ mode: offline
 train:
   file: train.csv
   dep_vars: ["Class"]
-  drop_vars: []
+  drop_vars: ["EJ"]
   val_split: 0.2
   sampling_strategy: smote
 
 test:
-  file: test.csv
+  seed: 33
+  split: 0.4
 
 classifier:
   name: xgboost
@@ -25,7 +26,7 @@ classifier:
     colsample_bynode: 0.7
     colsample_bytree: 1.0
     gamma: 0.6
-    learning_rate: 0.03
+    learning_rate: 0.0344
     max_depth: 3
     min_child_weight: 0.5
     n_estimators: 650

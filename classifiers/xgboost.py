@@ -37,7 +37,7 @@ class XGBoost(BaseClassifier):
             eval_metric=balanced_log_loss,
         )
 
-    def optimize(self, trial):
+    def objective(self, trial):
         params = dict(
             booster="gbtree",
             learning_rate=trial.suggest_float("learning_rate", 0.001, 0.1, log=True),
