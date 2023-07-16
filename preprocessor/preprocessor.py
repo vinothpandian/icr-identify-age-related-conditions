@@ -19,6 +19,8 @@ class Preprocessor:
         self.dep_vars = self.config.dep_vars
 
         self.untrainable_cols = self.drop_cols + self.dep_vars
+        if self.config.with_greeks:
+            self.untrainable_cols += ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]
 
         self.is_submission = self.config.is_submission
         self.stratify_by = self.config.stratify_by
