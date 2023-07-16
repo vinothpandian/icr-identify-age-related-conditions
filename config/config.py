@@ -15,7 +15,8 @@ class Config:
     is_submission: bool = False
     test: Dict[str, Any] = field(default_factory=dict)
     dep_vars: List[str] = field(default_factory=list)
-    k_fold_type: str = "stratified"
+    with_greeks: bool = False
+    kfold_type: str = "stratified"
     stratify_by: List[str] = None
     sampling_strategy: SamplingStrategyType = None
     sampling_strategy_kwargs: Dict[str, Any] = field(default_factory=dict)

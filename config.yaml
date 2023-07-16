@@ -12,12 +12,13 @@ dep_vars: ["Class"]
 sampling_strategy: smote
 
 classifier: xgboost
-drop_cols: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]
+with_greeks: False
+drop_cols: ["EJ"]
 stratify_by: ["Class"]
-kfold_type: n_fold
+kfold_type: stratified
 kfold_kwargs:
-  n_splits: 0
-  n_repeats: 1
+  n_splits: 7
+  n_repeats: 4
 model_kwargs:
   objective: binary:logistic
   colsample_bylevel: 0.3

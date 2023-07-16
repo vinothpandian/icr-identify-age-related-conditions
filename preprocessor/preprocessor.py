@@ -25,17 +25,21 @@ class Preprocessor:
         self.stratify_by = self.config.stratify_by
 
     def load_data(self):
-        train_df = pd.read_csv(self.path / "train.csv", index_col="Id")
-        greeks_df = pd.read_csv(self.path / "greeks.csv", index_col="Id")
-        self.train_df = pd.merge(train_df, greeks_df, left_index=True, right_index=True)
+        self.train_df = pd.read_csv(self.path / "train.csv", index_col="Id")
+
+        if self.config.with_greeks:
+            greeks_df = pd.read_csv(self.path / "greeks.csv", index_col="Id")
+            self.train_df = pd.merge(self.train_df, greeks_df, left_index=True, right_index=True)
 
         # Drops the dep_vars before splitting categorical and continuous variables
         self.cont_names, self.cat_names = cont_cat_split(self.train_df, dep_var=self.untrainable_cols)
 
         if self.is_submission:
             test_df = pd.read_csv(self.path / "test.csv", index_col="Id")
-            self.test_df = pd.merge(test_df, greeks_df, left_index=True, right_index=True, how="left")
-            self.test_df.drop(columns=self.drop_cols, inplace=True)
+
+            if self.config.with_greeks:
+                self.test_df = pd.merge(test_df, greeks_df, left_index=True, right_index=True, how="left")
+                self.test_df.drop(columns=self.drop_cols, inplace=True)
 
             # Dummy protection for an empty test dataset
             if np.all(np.isclose(self.test_df.select_dtypes("number").sum(), 0)):
@@ -61,7 +65,7 @@ class Preprocessor:
     def resample(self):
         sampler = get_sampling_strategy(self.config.sampling_strategy)
 
-        if sampler is None or any([stratify_by in self.dep_vars for stratify_by in self.stratify_by]):
+        if sampler is None or not all([stratify_by in self.dep_vars for stratify_by in self.stratify_by]):
             logger.info("Cannot resample when stratify_by is not in dep_vars")
             return
 

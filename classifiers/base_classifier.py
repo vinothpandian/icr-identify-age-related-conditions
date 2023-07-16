@@ -30,11 +30,11 @@ class BaseClassifier(ABC):
         stratify_by = self.data_preprocessor.stratify_by or self.dep_vars
         self.stratify_df = self.train_df[stratify_by]
 
-        self.X = self.train_df.drop(columns=self.untrainable_cols)
+        self.X = self.train_df.drop(columns=self.untrainable_cols, errors="ignore")
         self.y = self.train_df[self.dep_vars]
 
         if not self.is_submission:
-            self.X_test = self.test_df.drop(columns=self.untrainable_cols)
+            self.X_test = self.test_df.drop(columns=self.untrainable_cols, errors="ignore")
             self.y_test = self.test_df[self.dep_vars]
 
         kfold_type = self.config.kfold_type
@@ -78,6 +78,9 @@ class BaseClassifier(ABC):
                 f"{prefix}_f1": f1_val,
             }
         )
+
+        if prefix == "train":
+            wandb.summary["train_balanced_log_loss"] = loss_val
 
         if prefix == "test":
             wandb.summary["balanced_log_loss"] = loss_val
