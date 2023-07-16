@@ -105,4 +105,8 @@ class BaseClassifier(ABC):
 
     def optimize(self, trial):
         self.preprocess_data()
-        return self.objective(trial)
+        try:
+            loss = self.objective(trial)
+            return loss
+        except Exception:
+            return None

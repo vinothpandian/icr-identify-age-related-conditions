@@ -21,11 +21,11 @@ def optimize():
 
     study = optuna.create_study(
         direction="minimize",
-        study_name="lightbgm",
+        study_name="lightbgm_gbdt",
         storage="sqlite:///optuna_lightgbm.db",
         load_if_exists=True,
     )
-    study.optimize(classifier.optimize, n_trials=5)
+    study.optimize(classifier.optimize, n_trials=10)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
 root: ./data
 output: ./output
-mode: offline
+mode: disabled
 
 is_submission: False
 
@@ -11,13 +11,13 @@ test:
 dep_vars: ["Class"]
 sampling_strategy: smote
 
-classifier: xgboost
-with_greeks: True
-drop_cols: ["EJ"]
+classifier: lightgbm
+with_greeks: False
+drop_cols: []
 stratify_by: ["Class"]
 kfold_type: stratified
 kfold_kwargs:
-  n_splits: 7
+  n_splits: 20
   n_repeats: 4
 model_kwargs:
   objective: binary:logistic
