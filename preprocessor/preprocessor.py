@@ -22,6 +22,7 @@ class Preprocessor:
         self.untrainable_cols = self.drop_cols + self.dep_vars
 
         self.is_submission = self.config.is_submission
+        self.stratify_by = self.config.stratify_by
 
     def load_data(self):
         train_df = pd.read_csv(self.path / "train.csv", index_col="Id")
@@ -52,15 +53,16 @@ class Preprocessor:
         self.train_df = pd.merge(self.X_pre, self.train_df[self.untrainable_cols], left_index=True, right_index=True)
 
         if not self.is_submission:
-            test_data = preprocessor.transform(self.test_df.drop(columns=self.dep_vars))
-            self.test_df = pd.merge(test_data, self.test_df[self.dep_vars], left_index=True, right_index=True)
+            test_data = preprocessor.transform(self.test_df.drop(columns=self.untrainable_cols))
+            self.test_df = pd.merge(test_data, self.test_df[self.untrainable_cols], left_index=True, right_index=True)
         else:
             test_data = preprocessor.transform(self.test_df)
 
     def resample(self):
         sampler = get_sampling_strategy(self.config.sampling_strategy)
 
-        if sampler is None:
+        if sampler is None or any([stratify_by in self.dep_vars for stratify_by in self.stratify_by]):
+            logger.info("Cannot resample when stratify_by is not in dep_vars")
             return
 
         logger.info(f"Resampling data with {self.config.sampling_strategy}")

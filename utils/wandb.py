@@ -18,6 +18,6 @@ def init_wandb(config: Config):
         "f1": "max",
     }
 
-    for prefix in ["val_", "test_"]:
+    for prefix in ["train_", "test_"]:
         for metric, summary in metrics_summaries.items():
             wandb.define_metric(prefix + metric, summary=summary)

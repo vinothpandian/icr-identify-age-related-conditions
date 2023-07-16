@@ -29,7 +29,7 @@ class XGBoost(BaseClassifier):
             eval_metric=balanced_log_loss,
         )
 
-        for idx in self.kfold.split(self.X, self.y):
+        for idx in self.kfold.split(self.X, self.stratify_df):
             train_idx, _ = idx
             X_train = self.X.iloc[train_idx]
             y_train = self.y.iloc[train_idx]
@@ -47,18 +47,21 @@ class XGBoost(BaseClassifier):
             eval_metric=balanced_log_loss,
         )
 
-        for idx in self.kfold.split(self.X, self.y):
+        for idx in self.kfold.split(self.X, self.stratify_df):
             train_idx, _ = idx
             X_train = self.X.iloc[train_idx]
             y_train = self.y.iloc[train_idx]
 
             self.model.fit(X_train, y_train)
 
-        self.val_pred_probs = self.model.predict_proba(self.X)
+        self.train_pred_probs = self.model.predict_proba(self.X)
 
     def get_preds(self, type="val"):
         if type == "val":
-            return self.val_pred_probs, self.y.values.ravel()
+            return self.train_pred_probs, self.y.values.ravel()
+
+        if self.is_submission:
+            return self.model.predict_proba(self.X_test)
 
         pred_probs = self.model.predict_proba(self.X_test)
         return pred_probs, self.y_test.values.ravel()
