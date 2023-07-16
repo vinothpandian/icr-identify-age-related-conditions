@@ -41,9 +41,12 @@ def optimize():
     classifier.preprocess_data()
 
     study = optuna.create_study(
-        direction="minimize", storage="sqlite:///optuna_xgboost.db"
+        direction="minimize",
+        study_name="xgboost",
+        storage="sqlite:///optuna_xgboost.db",
+        load_if_exists=True,
     )
-    study.optimize(classifier.optimize, n_trials=15)
+    study.optimize(classifier.optimize, n_trials=30)
 
 
 if __name__ == "__main__":

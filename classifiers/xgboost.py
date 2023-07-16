@@ -49,7 +49,6 @@ class XGBoost(BaseClassifier):
         learning_rate = trial.suggest_float("learning_rate", 0.01, 0.1)
         n_estimators = trial.suggest_int("n_estimators", 100, 1000)
         max_depth = trial.suggest_int("max_depth", 3, 15)
-        booster = trial.suggest_categorical("booster", ["gbtree", "gblinear", "dart"])
         scale_pos_weight = trial.suggest_float("scale_pos_weight", 1.0, 5.0)
         subsample = trial.suggest_float("subsample", 0.0, 1.0)
         colsample_bytree = trial.suggest_float("colsample_bytree", 0.0, 1.0)
@@ -61,7 +60,6 @@ class XGBoost(BaseClassifier):
             learning_rate=learning_rate,
             n_estimators=n_estimators,
             max_depth=max_depth,
-            booster=booster,
             scale_pos_weight=scale_pos_weight,
             subsample=subsample,
             colsample_bytree=colsample_bytree,
