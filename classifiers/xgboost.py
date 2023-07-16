@@ -8,6 +8,8 @@ from metrics import balanced_log_loss
 
 from .base import BaseClassifier
 
+np.int = np.int64
+
 
 class XGBoost(BaseClassifier):
     def preprocess_data(self):
@@ -43,19 +45,19 @@ class XGBoost(BaseClassifier):
         )
         return df.overfitting_metric.idxmax()
 
-    def optimize(self, params, param_names, X, y):
-        hyperparams = dict(zip(param_names, params))
+    def optimize(self, params):
+        model = XGBClassifier(**params, eval_metric=balanced_log_loss)
 
-        model = XGBClassifier(**hyperparams, eval_metric=balanced_log_loss)
-
-        kfold = model_selection.RepeatedStratifiedKFold(**self.clf_config.kfold_kwargs)
+        kfold = model_selection.RepeatedStratifiedKFold(
+            **self.clf_config.kfold_kwargs,
+        )
 
         balanced_log_loss_scores = np.array([])
 
-        for idx in kfold.split(X, y):
+        for idx in kfold.split(self.X, self.y):
             train_idx, val_idx = idx
-            X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
-            y_train, y_val = y[train_idx], y[val_idx]
+            X_train, X_val = self.X.iloc[train_idx], self.X.iloc[val_idx]
+            y_train, y_val = self.y.iloc[train_idx], self.y.iloc[val_idx]
 
             model.fit(X_train, y_train)
             preds = model.predict_proba(X_val)
