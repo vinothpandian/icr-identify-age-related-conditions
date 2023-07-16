@@ -1,20 +1,26 @@
 from abc import ABC, abstractmethod
+from pathlib import Path
 
-from sklearn import metrics
+from sklearn import metrics, model_selection
 
 import wandb
+from config.config import Config
 from metrics.loss import balanced_log_loss
+from preprocessor.preprocessor import Preprocessor
 from visualize.results import plot_results
 
 
 class BaseClassifier(ABC):
-    def __init__(self, clf_config, data_preprocessor, config, output_path):
-        self.clf_config = clf_config
-        self.data_preprocessor = data_preprocessor
+    def __init__(self, config: Config, output_path: Path) -> None:
         self.config = config
+        self.data_preprocessor = Preprocessor(config)
+        self.data_preprocessor.preprocess()
+
         self.output_path = output_path
         self.model = None
         self.data = None
+
+        self.kfold = model_selection.RepeatedStratifiedKFold(**self.config.kfold_kwargs)
 
     @abstractmethod
     def preprocess_data(self):

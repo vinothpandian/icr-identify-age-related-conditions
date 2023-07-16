@@ -1,39 +1,33 @@
 root: ./data
 output: ./output
-type: submission
-mode: offline
+mode: disabled
 
-train:
-  file: train.csv
-  dep_vars: ["Class"]
-  drop_vars: ["EJ"]
-  val_split: 0.2
-  sampling_strategy: smote
+is_submission: False
 
 test:
-  seed: 33
-  split: 0.4
+  random_state: 33
+  test_size: 0.4
 
-classifier:
-  name: xgboost
-  type: xgboost
-  kfold_kwargs:
-    n_splits: 7
-    n_repeats: 4
-  model_kwargs:
-    objective: binary:logistic
-    colsample_bylevel: 0.3
-    colsample_bynode: 0.7
-    colsample_bytree: 1.0
-    gamma: 0.6
-    learning_rate: 0.0344
-    max_depth: 3
-    min_child_weight: 0.5
-    n_estimators: 650
-    reg_alpha: 0.0
-    reg_lambda: 0.0
-    scale_pos_weight: 5.5
-    subsample: 0.6
-    tree_method: hist
+dep_vars: ["Class"]
+sampling_strategy: smote
 
-batch_size: 128
+classifier: xgboost
+drop_cols: ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"]
+kfold_kwargs:
+  n_splits: 7
+  n_repeats: 4
+model_kwargs:
+  objective: binary:logistic
+  colsample_bylevel: 0.3
+  colsample_bynode: 0.7
+  colsample_bytree: 1.0
+  gamma: 0.6
+  learning_rate: 0.0344
+  max_depth: 3
+  min_child_weight: 0.5
+  n_estimators: 650
+  reg_alpha: 0.0
+  reg_lambda: 0.0
+  scale_pos_weight: 5.5
+  subsample: 0.6
+  tree_method: hist

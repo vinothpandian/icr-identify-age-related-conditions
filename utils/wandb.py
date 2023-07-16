@@ -1,18 +1,23 @@
+import dataclasses
+
 import wandb
+from config.config import Config
 
 
-def init_wandb(config_dictionary):
+def init_wandb(config: Config):
     wandb.init(
         project="icr-identify-age-related-conditions",
-        config=config_dictionary,
-        mode=config_dictionary.get("mode", "offline"),
+        config=dataclasses.asdict(config),
+        mode=config.mode,
     )
-    wandb.define_metric("val_balanced_log_loss", summary="min")
-    wandb.define_metric("val_accuracy", summary="max")
-    wandb.define_metric("val_kappa", summary="max")
-    wandb.define_metric("val_f1", summary="max")
 
-    wandb.define_metric("test_balanced_log_loss", summary="min")
-    wandb.define_metric("test_accuracy", summary="max")
-    wandb.define_metric("test_kappa", summary="max")
-    wandb.define_metric("test_f1", summary="max")
+    metrics_summaries = {
+        "balanced_log_loss": "min",
+        "accuracy": "max",
+        "kappa": "max",
+        "f1": "max",
+    }
+
+    for prefix in ["val_", "test_"]:
+        for metric, summary in metrics_summaries.items():
+            wandb.define_metric(prefix + metric, summary=summary)

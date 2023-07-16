@@ -2,15 +2,9 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
+from imblearn.over_sampling import ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE, RandomOverSampler
 from scipy import stats
-from sklearn import tree, ensemble, preprocessing, pipeline, impute, compose
-from imblearn.over_sampling import (
-    RandomOverSampler,
-    SMOTE,
-    SVMSMOTE,
-    ADASYN,
-    KMeansSMOTE,
-)
+from sklearn import compose, ensemble, impute, pipeline, preprocessing, tree
 
 
 def get_selected_features(type, df, dep_vars, model_kwargs):
@@ -50,7 +44,7 @@ def get_sampling_strategy(sampling_strategy):
             return None
 
 
-def get_preprocess_pipeline(df, cont_names, dep_vars):
+def get_preprocess_pipeline(df, cont_cols, cat_cols, drop_cols):
     """
     Returns a pipeline that performs the following transformations:
     * Standard scaling
@@ -75,7 +69,7 @@ def get_preprocess_pipeline(df, cont_names, dep_vars):
     # find an appropriate transformation for them to follow a normal distribution
     r2_scores = defaultdict(tuple)
 
-    for feature in cont_names:
+    for feature in cont_cols:
         orig = df[feature].dropna()
         _, (*_, R_orig) = stats.probplot(orig, rvalue=True)
         _, (*_, R_log) = stats.probplot(np.log(orig), rvalue=True)
@@ -107,7 +101,7 @@ def get_preprocess_pipeline(df, cont_names, dep_vars):
     yeojohnson_transform_cols = r2_scores.query("Winner == 'YeoJohnson'").index
 
     # Identify columns that are constant or semi-constant
-    numeric_descr = df.drop(columns=dep_vars).describe().T
+    numeric_descr = df.drop(columns=drop_cols).describe().T
     semi_constant_mask = np.isclose(numeric_descr["min"], numeric_descr["50%"])
     semi_constant_descr = numeric_descr[semi_constant_mask]
     semi_const_cols_thresholds = semi_constant_descr["50%"].to_dict()
@@ -154,7 +148,7 @@ def get_preprocess_pipeline(df, cont_names, dep_vars):
             impute.SimpleImputer(strategy="most_frequent"),
             preprocessing.OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1),
         ),
-        compose.make_column_selector(dtype_include=object),  # type: ignore
+        cat_cols,  # type: ignore
     )
     semi_const_transforms = [
         (

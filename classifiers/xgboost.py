@@ -1,42 +1,11 @@
-import numpy as np
-from sklearn import model_selection
 from xgboost import XGBClassifier
 
 from metrics import balanced_log_loss
 
-from .base import BaseClassifier
-
-np.int = np.int64
+from .base_classifier import BaseClassifier
 
 
 class XGBoost(BaseClassifier):
-    def preprocess_data(self):
-        df = self.data_preprocessor.train_df
-        self.X = df.drop(columns=self.config.train.dep_vars)
-        self.y = df[self.config.train.dep_vars]
-
-        test_df = self.data_preprocessor.test_df
-        self.X_test = test_df.drop(columns=self.config.train.dep_vars)
-        self.y_test = test_df[self.config.train.dep_vars]
-        self.scorer = lambda estimator, X, y: {
-            "val_balanced_log_loss": balanced_log_loss(
-                y,
-                estimator.predict_proba(X),
-            ),
-            "test_balanced_log_loss": balanced_log_loss(
-                self.y_test.values.ravel(),
-                estimator.predict_proba(self.X_test),
-            ),
-        }
-
-        self.kfold = model_selection.RepeatedStratifiedKFold(**self.clf_config.kfold_kwargs)
-
-    def build_model(self):
-        self.model = XGBClassifier(
-            **self.clf_config.model_kwargs,
-            eval_metric=balanced_log_loss,
-        )
-
     def objective(self, trial):
         params = dict(
             booster="gbtree",
@@ -73,6 +42,11 @@ class XGBoost(BaseClassifier):
         return balanced_log_loss(y_test, preds)
 
     def fit(self):
+        self.model = XGBClassifier(
+            **self.config.model_kwargs,
+            eval_metric=balanced_log_loss,
+        )
+
         for idx in self.kfold.split(self.X, self.y):
             train_idx, _ = idx
             X_train = self.X.iloc[train_idx]
