@@ -1,10 +1,12 @@
+import numpy as np
 import pandas as pd
 import wandb
 from sklearn import model_selection
 from xgboost import XGBClassifier
 
-from .base import BaseClassifier
 from metrics import balanced_log_loss
+
+from .base import BaseClassifier
 
 
 class XGBoost(BaseClassifier):
@@ -36,10 +38,34 @@ class XGBoost(BaseClassifier):
         df = pd.DataFrame(csv_results)
         df.to_csv(self.output_path / "grid_search_results.csv", index=False)
         df["overfitting_metric"] = (
-                df["mean_test_val_balanced_log_loss"]
-                - df["mean_test_test_balanced_log_loss"]
+            df["mean_test_val_balanced_log_loss"]
+            - df["mean_test_test_balanced_log_loss"]
         )
         return df.overfitting_metric.idxmax()
+
+    def optimize(self, params, param_names, X, y):
+        hyperparams = dict(zip(param_names, params))
+
+        model = XGBClassifier(**hyperparams, eval_metric=balanced_log_loss)
+
+        kfold = model_selection.RepeatedStratifiedKFold(**self.clf_config.kfold_kwargs)
+
+        balanced_log_loss_scores = np.array([])
+
+        for idx in kfold.split(X, y):
+            train_idx, val_idx = idx
+            X_train, X_val = X.iloc[train_idx], X.iloc[val_idx]
+            y_train, y_val = y[train_idx], y[val_idx]
+
+            model.fit(X_train, y_train)
+            preds = model.predict_proba(X_val)
+            fold_score = balanced_log_loss(y_val.values.ravel(), preds)
+            balanced_log_loss_scores = np.append(
+                balanced_log_loss_scores,
+                fold_score,
+            )
+
+        return balanced_log_loss_scores.mean()
 
     def fit(self):
         self.kfold = model_selection.RepeatedStratifiedKFold(
@@ -62,8 +88,8 @@ class XGBoost(BaseClassifier):
 
         result_df = pd.DataFrame(random_search.cv_results_)
         result_df["overfitting_score"] = (
-                result_df["mean_test_val_balanced_log_loss"]
-                - result_df["mean_test_test_balanced_log_loss"]
+            result_df["mean_test_val_balanced_log_loss"]
+            - result_df["mean_test_test_balanced_log_loss"]
         )
         best_score_row = result_df.iloc[random_search.best_index_]
         print(
