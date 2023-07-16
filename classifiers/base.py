@@ -1,7 +1,6 @@
 from abc import ABC, abstractmethod
 
 import wandb
-
 from sklearn import metrics
 
 from metrics.loss import balanced_log_loss

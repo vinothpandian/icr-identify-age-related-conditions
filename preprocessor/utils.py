@@ -4,7 +4,13 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 from sklearn import tree, ensemble, preprocessing, pipeline, impute, compose
-from imblearn.over_sampling import RandomOverSampler, SMOTE, SVMSMOTE, ADASYN, KMeansSMOTE
+from imblearn.over_sampling import (
+    RandomOverSampler,
+    SMOTE,
+    SVMSMOTE,
+    ADASYN,
+    KMeansSMOTE,
+)
 
 
 def get_selected_features(type, df, dep_vars, model_kwargs):
@@ -108,21 +114,11 @@ def get_preprocess_pipeline(df, cont_names, dep_vars):
 
     # List of columns to be transformed
     semi_const_cols = semi_const_cols_thresholds.keys()
-    no_transform_cols = no_transform_cols.drop(
-        semi_const_cols, errors="ignore"
-    ).to_list()
-    log_transform_cols = log_transform_cols.drop(
-        semi_const_cols, errors="ignore"
-    ).to_list()
-    reciprocal_transform_cols = reciprocal_transform_cols.drop(
-        semi_const_cols, errors="ignore"
-    ).to_list()
-    boxcox_transform_cols = boxcox_transform_cols.drop(
-        semi_const_cols, errors="ignore"
-    ).to_list()
-    yeojohnson_transform_cols = yeojohnson_transform_cols.drop(
-        semi_const_cols, errors="ignore"
-    ).to_list()
+    no_transform_cols = no_transform_cols.drop(semi_const_cols, errors="ignore").to_list()
+    log_transform_cols = log_transform_cols.drop(semi_const_cols, errors="ignore").to_list()
+    reciprocal_transform_cols = reciprocal_transform_cols.drop(semi_const_cols, errors="ignore").to_list()
+    boxcox_transform_cols = boxcox_transform_cols.drop(semi_const_cols, errors="ignore").to_list()
+    yeojohnson_transform_cols = yeojohnson_transform_cols.drop(semi_const_cols, errors="ignore").to_list()
 
     # Transformations
     standard_scaling = (
@@ -131,18 +127,14 @@ def get_preprocess_pipeline(df, cont_names, dep_vars):
     )
     log_transform = (
         pipeline.make_pipeline(
-            preprocessing.FunctionTransformer(
-                func=np.log, feature_names_out="one-to-one"
-            ),
+            preprocessing.FunctionTransformer(func=np.log, feature_names_out="one-to-one"),
             preprocessing.StandardScaler(),
         ),
         log_transform_cols,
     )
     reciprocal_transform = (
         pipeline.make_pipeline(
-            preprocessing.FunctionTransformer(
-                func=np.reciprocal, feature_names_out="one-to-one"
-            ),
+            preprocessing.FunctionTransformer(func=np.reciprocal, feature_names_out="one-to-one"),
             preprocessing.StandardScaler(),
         ),
         reciprocal_transform_cols,
@@ -160,9 +152,7 @@ def get_preprocess_pipeline(df, cont_names, dep_vars):
     categorical_imputing = (
         pipeline.make_pipeline(
             impute.SimpleImputer(strategy="most_frequent"),
-            preprocessing.OrdinalEncoder(
-                handle_unknown="use_encoded_value", unknown_value=-1
-            ),
+            preprocessing.OrdinalEncoder(handle_unknown="use_encoded_value", unknown_value=-1),
         ),
         compose.make_column_selector(dtype_include=object),  # type: ignore
     )

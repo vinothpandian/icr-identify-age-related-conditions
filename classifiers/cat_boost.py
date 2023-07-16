@@ -33,10 +33,7 @@ class CatBoost(BaseClassifier):
     def _refit(self, csv_results):
         df = pd.DataFrame(csv_results)
         df.to_csv("grid_search_results.csv", index=False)
-        df["overfitting_metric"] = (
-                df["mean_test_val_balanced_log_loss"]
-                - df["mean_test_test_balanced_log_loss"]
-        )
+        df["overfitting_metric"] = df["mean_test_val_balanced_log_loss"] - df["mean_test_test_balanced_log_loss"]
         return df.overfitting_metric.idxmax()
 
     def fit(self):
@@ -60,14 +57,9 @@ class CatBoost(BaseClassifier):
         random_search.fit(self.X, y)
 
         result_df = pd.DataFrame(random_search.cv_results_)
-        result_df["overfitting_score"] = (
-                result_df["mean_test_val_balanced_log_loss"]
-                - result_df["mean_test_test_balanced_log_loss"]
-        )
+        result_df["overfitting_score"] = result_df["mean_test_val_balanced_log_loss"] - result_df["mean_test_test_balanced_log_loss"]
         best_score_row = result_df.iloc[random_search.best_index_]
-        print(
-            f"{best_score_row.mean_test_val_balanced_log_loss}, {best_score_row.mean_test_test_balanced_log_loss}"
-        )
+        print(f"{best_score_row.mean_test_val_balanced_log_loss}, {best_score_row.mean_test_test_balanced_log_loss}")
 
         wandb.summary["Best hyperparameters"] = random_search.best_params_
         wandb.log({"Grid Search Results": wandb.Table(dataframe=result_df)})

@@ -16,9 +16,7 @@ class LightGBoost(BaseClassifier):
         test_df = self.data_preprocessor.test_df
         self.X_test = test_df.drop(columns=self.config.train.dep_vars)
         self.y_test = test_df[self.config.train.dep_vars]
-        self.scorer = metrics.make_scorer(
-            balanced_log_loss, greater_is_better=False, needs_proba=True
-        )
+        self.scorer = metrics.make_scorer(balanced_log_loss, greater_is_better=False, needs_proba=True)
 
     def build_model(self):
         self.model = LGBMClassifier(**self.clf_config.model_kwargs)
