@@ -11,9 +11,9 @@ test:
 dep_vars: ["Class"]
 sampling_strategy: smote
 
-classifier: lightgbm
+classifier: catboost
 with_greeks: False
-drop_cols: ["EJ"]
+drop_cols: []
 stratify_by: ["Class"]
 kfold_type: stratified
 kfold_kwargs:

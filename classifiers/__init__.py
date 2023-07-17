@@ -1,4 +1,5 @@
 from classifiers.base_classifier import BaseClassifier
+from classifiers.catboost import CatBoost
 from config.config import ClassifierType
 
 from .lightgbm import LightGBM
@@ -11,5 +12,7 @@ def get_classifier_class(classifier_type: ClassifierType) -> BaseClassifier:
             return XGBoost
         case "lightgbm":
             return LightGBM
+        case "catboost":
+            return CatBoost
         case _:
             return None

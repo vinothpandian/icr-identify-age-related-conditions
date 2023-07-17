@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
+from loguru import logger
 from sklearn import metrics, model_selection
 
 import wandb
@@ -108,5 +109,7 @@ class BaseClassifier(ABC):
         try:
             loss = self.objective(trial)
             return loss
-        except Exception:
+        except Exception as e:
+            logger.error(e)
+
             return None

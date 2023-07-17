@@ -199,3 +199,4 @@ output/
 .idea/
 wandb/
 /grid_search_results.csv
+catboost_info/

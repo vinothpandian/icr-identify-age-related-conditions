@@ -21,8 +21,8 @@ def optimize():
 
     study = optuna.create_study(
         direction="minimize",
-        study_name="lightbgm_gbdt_without_ej",
-        storage="sqlite:///optuna_lightgbm.db",
+        study_name="catboost",
+        storage="sqlite:///optuna_catboost.db",
         load_if_exists=True,
     )
     study.optimize(classifier.optimize, n_trials=500)
