@@ -21,7 +21,7 @@ def optimize():
 
     study = optuna.create_study(
         direction="minimize",
-        study_name="catboost",
+        study_name="catboost_symmetric_tree",
         storage="sqlite:///optuna_catboost.db",
         load_if_exists=True,
     )

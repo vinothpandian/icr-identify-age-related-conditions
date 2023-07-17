@@ -8,14 +8,14 @@ from .base_classifier import BaseClassifier
 class CatBoost(BaseClassifier):
     def objective(self, trial):
         params = dict(
-            iterations=trial.suggest_int("iterations", 100, 1000, step=50),
-            learning_rate=trial.suggest_float("learning_rate", 0.01, 0.3, log=True),
-            l2_leaf_reg=trial.suggest_float("l2_leaf_reg", 1.0, 10.0, step=0.5),
-            depth=trial.suggest_int("depth", 3, 8),
-            random_strength=trial.suggest_float("random_strength", 0.0, 100.0, step=2.0),
-            bagging_temperature=trial.suggest_float("bagging_temperature", 0.0, 10.0, step=0.5),
-            border_count=trial.suggest_int("border_count", 1, 255),
-            grow_policy=trial.suggest_categorical("grow_policy", ["SymmetricTree", "Depthwise", "Lossguide"]),
+            iterations=trial.suggest_int("iterations", 550, 650, step=50),
+            learning_rate=trial.suggest_float("learning_rate", 0.02, 0.05, log=True),
+            l2_leaf_reg=trial.suggest_float("l2_leaf_reg", 5.0, 6.0, step=0.1),
+            depth=trial.suggest_int("depth", 3, 4),
+            random_strength=trial.suggest_float("random_strength", 30.0, 75.0, step=5.0),
+            border_count=trial.suggest_int("border_count", 1, 75),
+            bagging_temperature=trial.suggest_float("bagging_temperature", 0.0, 0.5, step=0.1),
+            grow_policy="SymmetricTree",
             verbose=0,
             task_type="GPU",
             devices="0",
