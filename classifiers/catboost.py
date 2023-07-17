@@ -16,7 +16,7 @@ class CatBoost(BaseClassifier):
             bagging_temperature=trial.suggest_float("bagging_temperature", 0.0, 10.0, step=0.5),
             border_count=trial.suggest_int("border_count", 1, 255),
             grow_policy=trial.suggest_categorical("grow_policy", ["SymmetricTree", "Depthwise", "Lossguide"]),
-            verbose=1,
+            verbose=0,
             task_type="GPU",
             devices="0",
         )
