@@ -3,7 +3,7 @@ import pandas as pd
 from plotly import express as px
 
 
-def plot_results(y_true, y_pred, output_file_path):
+def plot_results(y_true, y_pred, output_file_path=None):
     """
     Plots the predictions of a model against the true values.
     It's useful to visualize the predictions of a model in a binary classification problem.
@@ -52,4 +52,6 @@ def plot_results(y_true, y_pred, output_file_path):
         xaxis_range=[-0.02, 1.02],
     )
     fig.update_traces(marker_size=6)
+    if not output_file_path:
+        return fig
     fig.write_image(str(output_file_path))

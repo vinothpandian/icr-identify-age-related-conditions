@@ -21,7 +21,7 @@ def optimize():
 
     study = optuna.create_study(
         direction="minimize",
-        study_name="lightbgm_gbdt",
+        study_name="lightbgm_gbdt_without_ej",
         storage="sqlite:///optuna_lightgbm.db",
         load_if_exists=True,
     )
