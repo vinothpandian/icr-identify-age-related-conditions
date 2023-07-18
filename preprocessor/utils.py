@@ -2,7 +2,8 @@ from collections import defaultdict
 
 import numpy as np
 import pandas as pd
-from imblearn.over_sampling import ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE, RandomOverSampler
+from imblearn.over_sampling import (ADASYN, SMOTE, SVMSMOTE, KMeansSMOTE,
+                                    RandomOverSampler)
 from scipy import stats
 from sklearn import compose, ensemble, impute, pipeline, preprocessing, tree
 
@@ -10,15 +11,15 @@ from sklearn import compose, ensemble, impute, pipeline, preprocessing, tree
 def get_selected_features(type, df, dep_vars, model_kwargs):
     model = None
 
-    match type:
-        case "decision_tree":
-            model = tree.DecisionTreeClassifier(**model_kwargs)
-        case "random_forest":
-            model = ensemble.RandomForestClassifier(**model_kwargs)
-        case "gboost":
-            model = ensemble.GradientBoostingClassifier(**model_kwargs)
-        case _:
-            model = tree.ExtraTreeClassifier(**model_kwargs)
+    if type == "decision_tree":
+        model = tree.DecisionTreeClassifier(**model_kwargs)
+    elif type == "random_forest":
+        model = ensemble.RandomForestClassifier(**model_kwargs)
+    elif type == "gboost":
+        model = ensemble.GradientBoostingClassifier(**model_kwargs)
+    else:
+        model = tree.ExtraTreeClassifier(**model_kwargs)
+
 
     X = df.drop(columns=dep_vars)
     y = df[dep_vars]
@@ -29,19 +30,19 @@ def get_selected_features(type, df, dep_vars, model_kwargs):
 
 
 def get_sampling_strategy(sampling_strategy):
-    match sampling_strategy:
-        case "random_over_sampler":
-            return RandomOverSampler
-        case "smote":
-            return SMOTE
-        case "svmsmote":
-            return SVMSMOTE
-        case "adasyn":
-            return ADASYN
-        case "kmeans_smote":
-            return KMeansSMOTE
-        case _:
-            return None
+    if sampling_strategy == "random_over_sampler":
+        return RandomOverSampler
+    elif sampling_strategy == "smote":
+        return SMOTE
+    elif sampling_strategy == "svmsmote":
+        return SVMSMOTE
+    elif sampling_strategy == "adasyn":
+        return ADASYN
+    elif sampling_strategy == "kmeans_smote":
+        return KMeansSMOTE
+    else:
+        return None
+
 
 
 def get_preprocess_pipeline(df, cont_cols, cat_cols, drop_cols):
