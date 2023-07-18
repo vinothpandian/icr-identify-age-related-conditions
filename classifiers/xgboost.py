@@ -1,3 +1,4 @@
+import optuna
 from xgboost import XGBClassifier
 
 from metrics import balanced_log_loss
@@ -29,12 +30,22 @@ class XGBoost(BaseClassifier):
             eval_metric=balanced_log_loss,
         )
 
-        for idx in self.kfold.split(self.X, self.stratify_df):
-            train_idx, _ = idx
+        for i, (train_idx, val_idx) in enumerate(self.kfold.split(self.X, self.stratify_df)):
             X_train = self.X.iloc[train_idx]
             y_train = self.y.iloc[train_idx]
 
+            X_val = self.X.iloc[val_idx]
+            y_val = self.y.iloc[val_idx]
+
             model.fit(X_train, y_train)
+
+            val_preds = model.predict_proba(X_val)
+            val_loss = balanced_log_loss(y_val, val_preds)
+
+            trial.report(val_loss, i)
+
+            if trial.should_prune():
+                raise optuna.TrialPruned()
 
         y_test = self.y_test.values.ravel()
         preds = model.predict_proba(self.X_test)

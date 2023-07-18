@@ -14,3 +14,6 @@ wandb
 tabpfn
 lightgbm
 gpytorch==1.5.0
+ruff
+black
+rope

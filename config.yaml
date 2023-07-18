@@ -11,7 +11,7 @@ test:
 dep_vars: ["Class"]
 sampling_strategy: smote
 
-classifier: catboost
+classifier: xgboost
 with_greeks: False
 drop_cols: []
 stratify_by: ["Class"]
