@@ -2,6 +2,7 @@ from pathlib import Path
 
 import optuna
 import pandas as pd
+from catboost import CatBoostClassifier
 from fastai.tabular.core import cont_cat_split
 from imblearn.over_sampling import SMOTE
 from lightgbm import LGBMClassifier
@@ -65,6 +66,7 @@ xgm_clf = XGBClassifier(
     subsample=0.6,
     tree_method="hist",
     eval_metric=balanced_log_loss,
+    gpu_id=0,
 )
 
 lgbm_clf = LGBMClassifier(
@@ -87,16 +89,31 @@ lgbm_clf = LGBMClassifier(
 )
 
 
+cat_clf = CatBoostClassifier(
+    bagging_temperature=0.5,
+    border_count=29,
+    depth=3,
+    grow_policy="SymmetricTree",
+    iterations=550,
+    l2_leaf_reg=6.0,
+    verbose=0,
+    task_type="GPU",
+    devices="0",
+)
+
+
 def optimize(trial):
     xgm_weight = trial.suggest_float("xgm_weight", 0.0, 1.0)
-    lgm_weight = 1.0 - xgm_weight
+    lgm_weight = trial.suggest_float("lgm_weight", 0.0, 1.0)
+    cat_weight = trial.suggest_float("cat_weight", 0.0, 1.0)
 
     ensemble_clf = VotingClassifier(
         estimators=[
             ("xgm", xgm_clf),
             ("lgbm", lgbm_clf),
+            ("cat", cat_clf),
         ],
-        weights=[xgm_weight, lgm_weight],
+        weights=[xgm_weight, lgm_weight, cat_weight],
         voting="soft",
     )
 
@@ -118,7 +135,7 @@ def optimize(trial):
 
 study = optuna.create_study(
     direction="minimize",
-    study_name="voting_ensemble_xgm_lgbm",
+    study_name="voting_ensemble_xgm_lgbm_catboost",
     storage="sqlite:///optuna.db",
     load_if_exists=True,
 )
