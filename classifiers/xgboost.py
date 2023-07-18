@@ -1,6 +1,7 @@
 import optuna
 from xgboost import XGBClassifier
-
+import numpy as np
+from sklearn import metrics
 from metrics import balanced_log_loss
 
 from .base_classifier import BaseClassifier
@@ -8,6 +9,7 @@ from .base_classifier import BaseClassifier
 
 class XGBoost(BaseClassifier):
     def objective(self, trial):
+            
         params = dict(
             booster="gbtree",
             learning_rate=trial.suggest_float("learning_rate", 0.001, 0.1, log=True),
@@ -22,13 +24,15 @@ class XGBoost(BaseClassifier):
             colsample_bytree=trial.suggest_float("colsample_bytree", 0.0, 1.0, step=0.1),
             colsample_bylevel=trial.suggest_float("colsample_bylevel", 0.0, 1.0, step=0.1),
             colsample_bynode=trial.suggest_float("colsample_bynode", 0.0, 1.0, step=0.1),
-            tree_method=trial.suggest_categorical("tree_method", ["auto", "exact", "approx", "hist"]),
-        )
-
-        model = XGBClassifier(
-            **params,
+            tree_method="gpu_hist",
+            sampling_method="gradient_based",
+            gpu_id=0,
             eval_metric=balanced_log_loss,
         )
+
+        model = XGBClassifier(**params)
+        
+        val_losses = np.array([])
 
         for i, (train_idx, val_idx) in enumerate(self.kfold.split(self.X, self.stratify_df)):
             X_train = self.X.iloc[train_idx]
@@ -40,17 +44,20 @@ class XGBoost(BaseClassifier):
             model.fit(X_train, y_train)
 
             val_preds = model.predict_proba(X_val)
-            val_loss = balanced_log_loss(y_val, val_preds)
-
-            trial.report(val_loss, i)
-
-            if trial.should_prune():
-                raise optuna.TrialPruned()
+            val_loss = balanced_log_loss(y_val.values.ravel(), val_preds)
+            
+            val_losses = np.append(val_losses, val_loss)               
+            
 
         y_test = self.y_test.values.ravel()
         preds = model.predict_proba(self.X_test)
+        
+        val_loss = np.mean(val_losses)
+        test_loss = balanced_log_loss(y_test, preds)
+        
+        overfitting = metrics.mean_squared_error([val_loss], [test_loss])
 
-        return balanced_log_loss(y_test, preds)
+        return test_loss, overfitting
 
     def fit(self):
         self.model = XGBClassifier(
