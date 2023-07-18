@@ -7,12 +7,11 @@ from .xgboost import XGBoost
 
 
 def get_classifier_class(classifier_type: ClassifierType) -> BaseClassifier:
-    match classifier_type:
-        case "xgboost":
-            return XGBoost
-        case "lightgbm":
-            return LightGBM
-        case "catboost":
-            return CatBoost
-        case _:
-            return None
+    if classifier_type == "xgboost":
+        return XGBoost
+    elif classifier_type == "lightgbm":
+        return LightGBM
+    elif classifier_type == "catboost":
+        return CatBoost
+    else:
+        return None
