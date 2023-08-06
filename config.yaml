@@ -17,8 +17,8 @@ drop_cols: []
 stratify_by: ["Class"]
 kfold_type: stratified
 kfold_kwargs:
-  n_splits: 7
-  n_repeats: 4
+  n_splits: 5
+  n_repeats: 2
 model_kwargs:
   objective: binary:logistic
   colsample_bylevel: 0.3
