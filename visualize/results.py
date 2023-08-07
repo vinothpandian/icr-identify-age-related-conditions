@@ -28,11 +28,11 @@ def plot_results(y_true, y_pred, output_file_path=None):
         y_proba_frame,
         x="Positive Class Probability",
         y="Sample Integer Index",
-        symbol="Class",
-        symbol_sequence=["diamond", "circle"],
         color="Class",
         color_discrete_sequence=["#010D36", "#FF2079"],
         category_orders={"Class": ("0", "1")},
+        symbol="Class",
+        symbol_sequence=["diamond", "circle"],
         opacity=0.6,
         height=540,
         width=840,
@@ -55,3 +55,31 @@ def plot_results(y_true, y_pred, output_file_path=None):
     if not output_file_path:
         return fig
     fig.write_image(str(output_file_path))
+
+
+def get_plot_results(y_true, y_pred):
+
+    y_proba_frame = pd.DataFrame(
+        {
+            "Sample Integer Index": np.arange(0, len(y_true)),
+            "Positive Class Probability": y_pred,
+            "Class": y_true.astype(str),
+        },
+    )
+
+    fig = px.scatter(
+        y_proba_frame,
+        x="Positive Class Probability",
+        y="Sample Integer Index",
+        symbol="Class",
+        symbol_sequence=["diamond", "circle"],
+        color="Class",
+        color_discrete_sequence=["#010D36", "#FF2079"],
+        category_orders={"Class": ("0", "1")},
+        opacity=0.6,
+        height=540,
+        width=840,
+        title="Training Dataset - Out of Fold Predictions",
+    )
+
+    return fig
