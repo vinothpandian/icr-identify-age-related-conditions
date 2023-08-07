@@ -13,8 +13,8 @@ from xgboost import XGBClassifier
 from metrics.loss import balanced_log_loss
 from preprocessor.utils import get_preprocess_pipeline
 
-path = Path("./data")
-output_path = Path("./submission")
+path = Path("../data")
+output_path = Path("../submission")
 
 
 def resample(X, y):
