@@ -19,12 +19,11 @@ def optimize():
     classifier_class = get_classifier_class(config.classifier)
     classifier = classifier_class(config, output_path)
 
-
     study = optuna.create_study(
         directions=["minimize", "minimize"],
-        # study_name="xgboost_optuna_overfitting",
-        # storage="sqlite:///optuna.db",
-        # load_if_exists=True,
+        study_name="xgboost_optuna_overfitting",
+        storage="sqlite:////storage/optuna.db",
+        load_if_exists=True,
     )
     study.optimize(classifier.optimize, n_trials=500)
 
